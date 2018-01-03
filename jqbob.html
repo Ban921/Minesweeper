@@ -1,0 +1,266 @@
+<!--
+                       _oo0oo_
+                      o8888888o
+                      88" . "88
+                      (| -_- |)
+                      0\  =  /0
+                    ___/`---'\___
+                  .' \\|     |// '.
+                 / \\|||  :  |||// \
+                / _||||| -:- |||||- \
+               |   | \\\  -  /// |   |
+               | \_|  ''\---/''  |_/ |
+               \  .-\__  '-'  ___/-. /
+             ___'. .'  /--.--\  `. .'___
+          ."" '<  `.___\_<|>_/___.' >' "".
+         | | :  `- \`.;`\ _ /`;.`/ - ` : | |
+         \  \ `_.   \_ __\ /__ _/   .-` /  /
+     =====`-.____`.___ \_____/___.-`___.-'=====
+                       `=---='
+
+
+     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+               佛祖保佑         永无BUG
+
+
+5天
+
+-->
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style type="text/css">
+    tr>td{
+        border-style:solid;
+        width: 30px;
+    	height: 38px;
+    	text-align:center;
+    }
+    td>input{
+    	width: 30px;
+    	height: 30px;
+    	background-color:pink;
+    }
+    .num{
+		width: 30px;
+    	text-align:center;
+    }
+    .flag{
+    	background-image: url(img/flag.png);
+    	background-size: contain;
+
+    }
+    .question{
+    	background-image: url(img/question.png);
+    	background-size: cover;
+    	background-repeat: no-repeat; 
+
+    }
+    .color{
+    	background-color:black;
+    }
+
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+
+	function Array2DVar(x,y) {  // 定義二維陣列原型
+  		this.length = x;
+  		this.x = x;  // x 維度長度
+  		this.y = y;  // y 維度長度
+  		for(var i = 0; i < this.length; i++)  // 初始各元素值為 null
+  		this[i] = new Array();  // this 代表物件本身
+	}
+	//產生炸彈
+	function bobint(num,x,y,bob,bobarray){
+		var a,b;
+		
+		for(i=0; i<bob; i++){
+			b = Math.floor(y*Math.random());
+			a = Math.floor(x*Math.random());
+			if (num[a][b]=='*') {i--;}
+			else{num[a][b] ='*'; bobarray[i] = a+'-'+b;}
+		}
+		ifbob(bobarray,num);
+	}
+	//炸彈周圍+1
+	function ifbob(bobarray,num) {
+		for(z=0; z<bobarray.length; z++){
+			var coordinate = bobarray[z].split('-');
+			i = parseInt(coordinate[0]);
+			j = parseInt(coordinate[1]);
+
+			for (var a = i-1; a <= i+1; a++) {
+				for (var b = j-1; b <= j+1; b++) {
+					if(a!= -1 && b!= -1 && num[a][b]!='*'){
+						num[a][b] = num[a][b]+1;
+					}
+				}
+			}
+		}
+	}
+
+	$(document).ready(function () {
+		document.onselectstart=new Function("event.returnValue=false;");//禁止選取
+		document.oncontextmenu = function() { return false;};
+		$('.btn1').click(function () {
+			var n = $('.row').val(), m = $('.col').val(), bob = $('.bob').val(),Lef = n*m-bob;
+
+			var count = 1, x = 0 , y = 0;
+			var num = new Array2DVar(n+1,m+1);
+			var bobarray = new Array;
+
+			if( bob >= n * m ){alert("炸彈數超過格子數"); return; }
+			for (var i=0; i < n ;i++) {
+				for (var j=0; j < m ;j++) {
+					num[i][j] = 0;
+				}
+			}
+			bobint(num,n,m,bob,bobarray);
+
+			
+			var td = "", tr = "", table = "";
+			for (var i=0; i < n ;i++) {
+				for (var j=0; j < m ;j++) {
+					td += '<td>' + '<input class="mineBoard" type="submit" value="" data-myid="' + i + '-' + j + '"' + '/></td>';
+				}
+				tr += '<tr>' + td + '</tr>';
+				td = "";
+			}
+
+			table = '<table>' + tr + '</table>';
+						
+
+			$('.test').html(table);	
+
+			$('.mineBoard').click(function () {
+				var myid = $(this).data('myid');
+				var coordinate = myid.split('-');
+				var x = parseInt(coordinate[0]), y = parseInt(coordinate[1]);
+			
+
+				if(num[x][y] == '*'){					
+					for(z=0; z<bobarray.length; z++){
+						$('.mineBoard[data-myid='+bobarray[z]+']').replaceWith('<img src="img/bomb.jpg" height="30" width="30">');
+					}
+					$('.mineBoard').attr('disabled', true);
+					alert('bob');
+				}
+
+				else if(num[x][y] == '0'){
+					$(this).replaceWith('');
+					//等於0散開
+					for (var a = x-1; a <= x+1; a++) {
+						for (var b = y-1; b <= y+1; b++) {
+							if(a>=0 && b>=0 && num[a][b] != '*'){
+								$('.mineBoard[data-myid='+a+'-'+b+']').click();
+							}
+						}
+					}
+
+				}else{
+					$(this).replaceWith('<div class="num" data-myid="' + x + '-' + y + '"' + '>'+num[x][y]+'</div>');
+					$('.num[data-myid='+x+'-'+y+']').mousedown(function(i){
+						if(i.buttons == 3){
+							for (var a = x-1; a <= x+1; a++) {
+								for (var b = y-1; b <= y+1; b++) {
+									if(a>=0 && b>=0 ){
+										if($('.mineBoard[data-myid='+a+'-'+b+']')){$('.mineBoard[data-myid='+a+'-'+b+']').addClass('color');}
+									}
+								}
+							}
+
+						}
+						$('.num[data-myid='+x+'-'+y+']').mouseup(function(i){
+							var c = 0;
+							var ck = false;
+							for (var a = x-1; a <= x+1; a++) {
+								for (var b = y-1; b <= y+1; b++) {
+									if(a>=0 && b>=0 ){
+										if($('.mineBoard[data-myid='+a+'-'+b+']').hasClass('flag')){c++;}
+										if($('.mineBoard[data-myid='+a+'-'+b+']')){$('.mineBoard[data-myid='+a+'-'+b+']').removeClass('color');}
+									}
+								}
+							}
+
+							if(c == num[x][y]){ ck=true;}
+							if(ck){
+								for (var a = x-1; a <= x+1; a++) {
+									for (var b = y-1; b <= y+1; b++) {
+										if(a>=0 && b>=0 ){
+											if($('.mineBoard[data-myid='+a+'-'+b+']').hasClass('flag') || $('.mineBoard[data-myid='+a+'-'+b+']').hasClass('question')){}
+											else{$('.mineBoard[data-myid='+a+'-'+b+']').click();}	
+										}
+									}
+								}
+							}
+						});
+					});
+
+					$(this).mouseout(function(){
+
+							for (var a = x-1; a <= x+1; a++) {
+								for (var b = y-1; b <= y+1; b++) {
+									if(a>=0 && b>=0){
+					  					$('.mineBoard[data-myid='+a+'-'+b+']').removeClass('color');
+									}
+								}
+							}
+					});
+					
+
+
+				}
+				Lef--;
+				if(Lef == 0 && num[x][y] != '*'){
+					$('.mineBoard').attr('disabled', true);
+					alert('win');
+				}
+			});
+			$('body').mouseup(function(e){
+				$('.color').removeClass('color');
+			})
+
+			//旗子
+			$('.mineBoard').mousedown(function(e){
+				console.log(e);
+				if(e.buttons == 1){
+    		        if($(this).hasClass('flag') || $(this).hasClass('question')){
+    		        	alert('不能點');
+    		        }
+    		        return false;
+    		    }
+    		    if(e.buttons == 2){
+    		    	if($(this).hasClass('flag')){
+    		    		$(this).removeClass('flag');
+    		    		$(this).addClass('question');
+    		    	}else if($(this).hasClass('question')){
+    		    		$(this).removeClass('question');
+    		    	}else{
+    		    		$(this).addClass('flag');
+    		    	}
+    		        return false;
+    		    }
+    		});
+		})
+	})
+	
+	
+</script>
+</head>
+<body>
+	<p>行: <input class="row" type="text" name="row" pattern="^[0-9]*$" required="required"/></p>
+    <p>列: <input class="col" type="text" name="col" pattern="^[0-9]*$" required="required"/></p>
+    <p>地雷數:<input class="bob" type="text" name="bob" pattern="^[0-9]*$" required="required"/></p>
+    <input class="btn1" type="submit" value="Submit" />
+
+    <div class="test"></div>
+</body>
+</html>
