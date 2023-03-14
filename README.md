@@ -1,3 +1,3 @@
-# bob
+# Minesweeper
 
-仿 WINDOWS踩地雷
+Like Windows Minesweeper
